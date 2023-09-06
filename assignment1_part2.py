@@ -4,8 +4,7 @@ class Book:
         self.title = title
 
     def display(self):
-        print(f"case 1 = The book {self.title} was written by {self.author}")
-        print("case 2 = The book {v1} was written by {v2}".format(v1=self.title, v2=self.author))
+        print(f"The book {self.title} was written by {self.author}")
 
 
 if __name__ == "__main__":
