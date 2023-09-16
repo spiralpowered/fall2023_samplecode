@@ -30,27 +30,36 @@ def processData(file_content):
     :param file_content:
     :return:
     """
+    # configures log error level & creates log file
+    logging.basicConfig(filename='error.log', level=logging.ERROR)
+    
     # result dict <id, (name, birthday)>
     result_dict = {}
     lines = file_content.split("\n")
     for i, record in enumerate(lines):
-        items = record.split(",")
-        if items[0] == "id":
-            continue
-        id = int(items[0])
-        name = items[1]
-        date_str = items[2]
-        birthday = datetime.datetime.strptime(date_str, "%d/%m/%Y")
+        # assigns each item to dict
+        try:
+            items = record.split(",")
+            if items[0] == "id":
+                continue
+            id = int(items[0])
+            name = items[1]
+            date_str = items[2]
+        except Exception as e:
+            print(e)
 
-        # print(f"id = {id} | name = {name} | birthday = {birthday:%Y-%m-%d}")
-        result_dict[id] = (name, birthday)
-        # get rid of the next two lines to process the whole file
-        # if there are errors on the data, handle it (you will need to handle the exception)
-        if i > 5:
-            break
+        # checks date for correct format
+        try:
+            birthday = datetime.datetime.strptime(date_str, "%d/%m/%Y")
+        # handles the ValueError by updating log when an invalid date is found
+        except ValueError:
+            logging.error(f"Error processing line {i} for ID {id}")
+        # updates the dictionary
+        else:
+            # print(f"id = {id} | name = {name} | birthday = {birthday:%Y-%m-%d}")
+            result_dict[id] = (name, birthday)
 
     return result_dict
-
 
 def displayPerson(id, personData):
     # if the ID is not in the dictionary, print "No user found with that id
@@ -63,11 +72,19 @@ def main(url):
     print(f"Running main with URL = {url}...")
     url_data = downloadData(url)
     data_dict = processData(url_data)
-    # ask the user for an ID.
-    # If ID < 0, exit
-    # else, call displayPerson with that ID and the data dict
-    displayPerson(3, data_dict)
 
+
+    # If ID < 0, exit
+    try:
+        user_id = int(input("Enter an ID: "))
+        if user_id <= 0:
+            exit()
+
+    # else, call displayPerson with that ID and the data dict
+        else:
+            displayPerson(user_id, data_dict)
+    except Exception:
+        print("No user found with that ID")
 
 if __name__ == "__main__":
     """Main entry point"""
